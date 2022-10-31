@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -14,7 +13,7 @@ type envtmp struct {
 }
 
 func LoadEnv(envPath string) {
-	tmp := envtmp{}
+	tmp := &envtmp{}
 
 	fl, err := os.Open(envPath)
 	if err != nil {
@@ -25,12 +24,22 @@ func LoadEnv(envPath string) {
 	for {
 		if c, _, err := reader.ReadRune(); err != nil {
 			if err == io.EOF {
+				tmp = nil
 				break
 			} else {
 				log.Fatal(err)
 			}
 		} else {
-			str := StandardizeSpaces(string(c))
+			str := string(c)
+
+			if str == "\n" {
+				os.Setenv(tmp.key, tmp.val)
+
+				tmp.key = ""
+				tmp.val = ""
+			}
+
+			str = StandardizeSpaces(str)
 			if len(tmp.val) > 0 {
 				if tmp.val == "=" {
 					tmp.val = ""
@@ -45,6 +54,4 @@ func LoadEnv(envPath string) {
 			}
 		}
 	}
-
-	fmt.Println(tmp)
 }
