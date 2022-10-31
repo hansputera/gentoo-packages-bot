@@ -7,8 +7,12 @@ type PackageSearch struct {
 	Url         string `json:"url"`
 }
 
-type PackageVersion map[string]string // "stable", "testing", "alpha", and "unsupported"
-type PackageVersions map[string]PackageVersion
+type PackageVersion struct {
+	EbuildUrl    string   `json:"ebuild_url"`
+	ArchStatuses []string `json:"arch_statuses"` // (e.g "amd64_stable", "x86_testing", "ppc_unknown")
+}
+
+type PackageVersions map[string]*PackageVersion
 
 type PackageFlags struct {
 	Category string    `json:"category"` // "Local Use Flags", "Global Use Flags", "cpu_flags_arm (Use Expand)", "l10n (Use Expand)", etc..
