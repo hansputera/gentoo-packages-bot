@@ -24,7 +24,7 @@ type PackageMaintainer struct {
 type Package struct {
 	PackageSearch
 	Versions   PackageVersions   `json:"versions"`
-	Flags      PackageFlags      `json:"package_flags"`
+	Flags      []PackageFlags    `json:"package_flags"`
 	License    string            `json:"license"`
 	Maintainer PackageMaintainer `json:"maintainer"`
 }
