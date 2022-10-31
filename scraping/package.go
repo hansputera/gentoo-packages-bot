@@ -26,11 +26,41 @@ func GetPackage(group string, pkg string) *structs.Package {
 	pkg_struct := structs.Package{}
 	collector := colly.NewCollector()
 
+	pkg_struct.Versions = make(structs.PackageVersions)
+
 	// detail track
 	collector.OnHTML(".kk-header-container", func(h *colly.HTMLElement) {
 		pkg_struct.Group = strings.TrimSuffix(h.ChildText(".kk-package-cat"), "/")
 		pkg_struct.Package = utils.StandardizeSpaces(h.ChildText(".kk-package-name"))
 		pkg_struct.Url = GetPackageUrl(group, pkg)
+	})
+
+	// available versions track
+	collector.OnHTML("tbody tr", func(h *colly.HTMLElement) {
+		// skip header
+		if h.Index == 0 {
+			return
+		}
+
+		h.ForEach("td", func(_ int, versionEl *colly.HTMLElement) {
+			if versionEl.DOM.HasClass("kk-version") {
+				pkg_struct.Versions[utils.StandardizeSpaces(versionEl.DOM.Find("strong").Text())] = &structs.PackageVersion{
+					EbuildUrl: versionEl.DOM.Find("strong a").AttrOr("href", "-"),
+				}
+			} else if versionEl.DOM.HasClass("kk-keyword") {
+				matchs := strings.Split(
+					utils.StandardizeSpaces(
+						versionEl.Attr("title"),
+					), " ",
+				)
+				if len(pkg_struct.Versions[matchs[0]].EbuildUrl) > 0 {
+					pkg_struct.Versions[matchs[0]].ArchStatuses = append(
+						pkg_struct.Versions[matchs[0]].ArchStatuses,
+						matchs[len(matchs)-1]+"_"+matchs[2],
+					)
+				}
+			}
+		})
 	})
 
 	// metadata useflag track
