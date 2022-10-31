@@ -9,7 +9,7 @@ func getBaseUrl() string {
 }
 
 func GetSearchQueryUrl(query string) string {
-	return getBaseUrl() + "/search?" + url.Values{
+	return getBaseUrl() + "/packages/search?" + url.Values{
 		"q": {query},
 	}.Encode()
 }
