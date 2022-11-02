@@ -1,5 +1,5 @@
 # Gentoo Packages Telegram Bot
-Search gentoo packages with telegram bot
+Search [Gentoo](https://www.gentoo.org/) packages with telegram bot
 
 ## TODO:
 - Add maintainer scrape
