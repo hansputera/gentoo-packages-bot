@@ -8,8 +8,9 @@ import (
 )
 
 type envtmp struct {
-	key string
-	val string
+	key  string
+	val  string
+	stop bool
 }
 
 func LoadEnv(envPath string) {
@@ -24,6 +25,7 @@ func LoadEnv(envPath string) {
 	for {
 		if c, _, err := reader.ReadRune(); err != nil {
 			if err == io.EOF {
+				os.Setenv(tmp.key, tmp.val)
 				tmp = nil
 				break
 			} else {
@@ -37,10 +39,16 @@ func LoadEnv(envPath string) {
 
 				tmp.key = ""
 				tmp.val = ""
+				tmp.stop = false
+			} else if tmp.stop {
+				continue
 			}
 
 			str = StandardizeSpaces(str)
-			if len(tmp.val) > 0 {
+			if str == "#" {
+				tmp.stop = true
+				continue
+			} else if len(tmp.val) > 0 {
 				if tmp.val == "=" {
 					tmp.val = ""
 				}
